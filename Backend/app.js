@@ -10,7 +10,13 @@ const app = express();
 
 const userRoutes = require('./routes/user');
 
-app.use(cors());
+//Set cors options to allow specific origin for security
+const corsOptions = {
+    origin: 'http://127.0.0.1:5500',
+    credentials: true,      // Credentials like cookies, authorization headers, etc
+  };
+
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/user', userRoutes);
