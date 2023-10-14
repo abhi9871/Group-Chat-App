@@ -2,13 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const sequelize = require('./utils/database');
+const User = require('./models/user');
+const ChatMessages = require('./models/chat');
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT;
 
 const app = express();
 
+// Association between models
+User.hasMany(ChatMessages);
+ChatMessages.belongsTo(User);
+
+// Routes
 const userRoutes = require('./routes/user');
+const chatRoutes = require('./routes/chat');
 
 //Set cors options to allow specific origin for security
 const corsOptions = {
@@ -20,6 +28,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/user', userRoutes);
+app.use('/chat', chatRoutes);
 
 sequelize.sync()
 .then(() => {

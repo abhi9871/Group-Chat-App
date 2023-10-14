@@ -17,3 +17,7 @@ body{
     border-radius: 0 0 15px 15px !important;
     border-top: 0 !important;
 }
+
+.message-content {
+    margin-top: 4px;
+}
