@@ -13,6 +13,26 @@ body{
 .card-header{
     border-radius: 15px 15px 0 0 !important;
 }
+
+.card-body {
+    overflow-y: auto; /* Enable vertical scrollbar */
+}
+
+/* For WebKit-based browsers (Chrome, Safari) */
+.card-body::-webkit-scrollbar {
+    width: 8px; /* Set the width of the scrollbar */
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background-color: #c2d2da; /* Set the color of the scrollbar thumb */
+    border-radius: 8px; /* Set the border radius to round */
+}
+
+.card-body::-webkit-scrollbar-track {
+    background-color: #f6f7f8; /* Set the color of the scrollbar track */
+    border-radius: 8px; /* Set the border radius to round */
+}
+
 .card-footer{
     border-radius: 0 0 15px 15px !important;
     border-top: 0 !important;

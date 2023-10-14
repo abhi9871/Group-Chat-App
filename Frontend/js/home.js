@@ -1,4 +1,5 @@
 const messageSendBtn = document.getElementById('sendMessage');
+const messageContainer = document.querySelector('.card-body');
 const token = localStorage.getItem('token');
 
 // Initialize Toastr options
@@ -20,6 +21,23 @@ toastr.options = {
     hideMethod: "fadeOut"
 };
 
+// Show messages on screen
+function showMessageOnScreen(messages) {
+    const messageElement = document.createElement('div');
+        messageElement.style.display = 'flex';
+        messageElement.style.alignItems = 'center';
+        messageElement.innerHTML = `
+            <div class="message message-content border p-3 mb-2 rounded-4 bg-light">${messages}</div>
+        `;
+        messageContainer.appendChild(messageElement);
+        scrollToBottom();
+}
+
+// Add this function to scroll to the bottom
+function scrollToBottom() {
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
 // Add event listener to the button to send message
 messageSendBtn.addEventListener('click', sendMessages);
 
@@ -34,19 +52,40 @@ async function sendMessages() {
             messageBox.value = '';
         }
     } catch (err) {
-        const error = err.response.data.message;
         console.log(err);
-        toastr.error(error);
+        if (err.response && err.response.data && err.response.data.success === false) {
+            const errorMessage = err.response.data.message;
+            toastr.error(errorMessage);
+        } else {
+            // Handle other errors (e.g., network errors) or provide a generic error message.
+            toastr.error("An error occurred");
+        }
     }
 };
 
-function showMessageOnScreen(message) {
-    const messageBody = document.querySelector('.card-body');
-    const messageElement = document.createElement('div');
-        messageElement.classList.add('border', 'p-3', 'mb-3', 'rounded', 'bg-light');
-        messageElement.style.display = 'inline-block';
-        messageElement.innerHTML = `
-            <div class="message-content">${message}</div>
-        `;
-        messageBody.appendChild(messageElement);
+async function getMessages() {
+    try {
+        const response = await axios.get('http://localhost:4000/chat/get-messages', { headers: { "Authorization": token } });
+        if(response.data.success){
+            const messages = response.data.messages;
+            messageContainer.innerHTML = '';
+            messages.forEach((message) => {
+                showMessageOnScreen(message.message);
+            });
+        }   
+    } catch (err) {
+        console.log(err);
+        if (err.response && err.response.data && err.response.data.success === false) {
+            const errorMessage = err.response.data.message;
+            toastr.error(errorMessage);
+        } else {
+            // Handle other errors (e.g., network errors) or provide a generic error message.
+            toastr.error("Something went wrong.");
+        }
+    }
 }
+
+// Fetch all the messages while refreshing the page
+window.addEventListener('DOMContentLoaded', async () => {
+   await getMessages();
+})
