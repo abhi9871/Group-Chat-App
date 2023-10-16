@@ -85,6 +85,11 @@ async function getMessages() {
     }
 }
 
+// Refreshing the page to get new messages after every 1 second
+setInterval(() =>{
+    getMessages()
+}, 1000)
+
 // Fetch all the messages while refreshing the page
 window.addEventListener('DOMContentLoaded', async () => {
    await getMessages();
