@@ -48,7 +48,6 @@ async function sendMessages() {
         const messageContent = messageBox.value;
         const response = await axios.post('http://localhost:4000/chat/message', { message: messageContent }, { headers: { "Authorization": token }});
         if(response.data.success) {
-            showMessageOnScreen(response.data.content);
             messageBox.value = '';
         }
     } catch (err) {
@@ -65,13 +64,16 @@ async function sendMessages() {
 
 async function getMessages() {
     try {
-        const response = await axios.get('http://localhost:4000/chat/get-messages', { headers: { "Authorization": token } });
+        let localStorageChats = localStorage.getItem('chats');
+        let localChats = localStorageChats ? JSON.parse(localStorageChats) : [];
+        let lastMessageId = localChats.length > 0 ? localChats[localChats.length - 1].id : 0;
+        const response = await axios.get(`http://localhost:4000/chat/get-messages?lastMessageId=${lastMessageId}`, { headers: { "Authorization": token } });
         if(response.data.success){
             const messages = response.data.messages;
-            messageContainer.innerHTML = '';
             messages.forEach((message) => {
-                showMessageOnScreen(message.message);
-            });
+                localChats.push(message);
+            })
+            localStorage.setItem('chats', JSON.stringify(localChats));
         }   
     } catch (err) {
         console.log(err);
@@ -85,12 +87,22 @@ async function getMessages() {
     }
 }
 
+// Retrieve message from the local storage and show on the screen
+function getLocalStorageChats() {
+    const chatArr = JSON.parse(localStorage.getItem('chats'));
+    messageContainer.innerHTML = '';
+    chatArr.forEach((message) => {
+        showMessageOnScreen(message.message);
+    })
+}
+
 // Refreshing the page to get new messages after every 1 second
 setInterval(() =>{
-    getMessages()
+    getMessages();
+    getLocalStorageChats();
 }, 1000)
 
 // Fetch all the messages while refreshing the page
-window.addEventListener('DOMContentLoaded', async () => {
-   await getMessages();
+window.addEventListener('DOMContentLoaded', () => {
+    getLocalStorageChats();
 })

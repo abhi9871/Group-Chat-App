@@ -38,19 +38,16 @@ const createUser = async (req, res) => {
         res.status(200).json({ success: true, message: "Sign up successful." });
         
     } catch (err) {
-        if (err.name === "SequelizeValidationError") {
+        if (err.name === "SequelizeValidationError" || err.name === "SequelizeUniqueConstraintError") {
             const validationErrors = {};
             err.errors.forEach((error) => {
                 validationErrors[error.path] = error.message;
             });
             res.status(400).json({ success: false, errors: validationErrors });
-        } else if (err.name === "SequelizeUniqueConstraintError") {
-            res.status(400).json({success: false, errors: { email: "Email already exists" },
-        });
         } else {
             console.log(err);
             res.status(500).json({ success: false, message: "Internal server error." });
-        }
+        }        
     }
 };
 

@@ -15,7 +15,10 @@ const User = sequelize.define('user', {
     email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        unique: {
+            args: 'email',
+            msg: 'Email already exists'
+        },
         validate: {
             isEmail: {
                 msg: 'Please enter a valid email address' // Custom error message
@@ -25,8 +28,16 @@ const User = sequelize.define('user', {
     phone: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: {
+            args: 'phone',
+            msg: 'Phone number already exists'
+        },
         validate: {
-            is: /^[0-9]{10}$/ // Regular expression to validate a 10-digit phone number
+            is: /^[0-9]{10}$/, // Regular expression to validate a 10-digit phone number
+            len: {
+                args: [10, 10],
+                msg: 'Phone number must be 10 digits'
+            }
         },
     },
     password: {

@@ -41,19 +41,26 @@ async function signUp(e) {
         if(response.data.success){
             localStorage.setItem('isSignupSuccessful', true);
             signupForm.reset();
-            window.location.href = 'http://localhost:5500/Frontend/html/login.html';
+            window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
         }
 
     } catch(err){
+        if(err.response && err.response.data && err.response.data.errors) {
         const error = err.response.data.errors;
+        console.log(error);
         if(error.email){
             // Display an error message for email field
             toastr.error(error.email);
+        }
+        if(error.phone){
+            // Display an error message for phone field
+            toastr.error(error.phone);
         }
         if(error.password){
             // Display an error message for password field
             toastr.error(error.password);
         }
+    }
         console.log(err);
     }
 }
