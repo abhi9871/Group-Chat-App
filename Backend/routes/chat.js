@@ -4,7 +4,7 @@ const userAuthentication = require('../middleware/auth');
 const router = express.Router();
 
 // Create chat message route
-router.post('/message', userAuthentication.authenticate, chatController.createChatMessage);
+router.post('/create-message', userAuthentication.authenticate, chatController.createChatMessage);
 
 // Fetching all the chat messages route
 router.get('/get-messages', userAuthentication.authenticate, chatController.getChatMessages);

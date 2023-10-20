@@ -1,16 +1,16 @@
-body{
+body {
     margin: 0;
     background: #7F7FD5;
     background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
     background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
 }
 
-.card{
+.card {
     height: 32rem;
     border-radius: 15px !important;
     background-color: rgba(0,0,0,0.4) !important;
 }
-.card-header{
+.card-header {
     border-radius: 15px 15px 0 0 !important;
 }
 
@@ -28,11 +28,25 @@ body{
     border-radius: 8px; /* Set the border radius to round */
 }
 
-.card-footer{
+.card-footer {
     border-radius: 0 0 15px 15px !important;
     border-top: 0 !important;
 }
 
 .message-content {
     margin-top: 4px;
+}
+
+#participants {
+    overflow-y: scroll; /* Enable vertical scrollbar */
+    height: 100px;
+}
+
+#participants::-webkit-scrollbar {
+    width: 8px; /* Set the width of the scrollbar */
+}
+
+#participants::-webkit-scrollbar-thumb {
+    background-color: #c2d2da; /* Set the color of the scrollbar thumb */
+    border-radius: 8px; /* Set the border radius to round */
 }

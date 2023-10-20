@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 const dotEnv = require('dotenv');
 dotEnv.config(); // To access env variables
 
@@ -75,12 +76,35 @@ const loginUser = async (req, res) => {
           res.status(404).json({ success: false, message: "User not found" });
       }
     } catch (err) {
+          console.log(err);
           res.status(500).json({ success: false, message: "An error occurred" });
     }
   };
 
+// Get all the users 
+const getUsers = async (req, res) => {
+    try {
+        const currentUserId = req.user.id;
+        const users = await User.findAll({ where: {
+            id: {
+                [Op.not]: currentUserId
+            }
+       },
+        attributes: ['id', 'email'] 
+    });
+       if(users) {
+            res.status(200).json({ success: true, users });
+       }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+}
+
+
 module.exports = {
     generateToken,
     createUser,
-    loginUser
+    loginUser,
+    getUsers
 }

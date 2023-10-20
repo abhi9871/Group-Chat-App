@@ -5,9 +5,11 @@ const { Op } = require('sequelize');
 const createChatMessage = async (req, res) => {
     try {
         const { message } = req.body;
+        const groupId = req.query.groupId;
         const msg =  await Chat.create({
             message: message,
             userId: req.user.id,
+            groupId: groupId
         })
         if(msg) {
             res.status(200).json({ success: true });
@@ -24,8 +26,9 @@ const createChatMessage = async (req, res) => {
 //Function to display all the messages
 const getChatMessages = async (req, res) => {
     try {
+        const groupId = req.query.groupId;
         const lastMessageId = req.query.lastMessageId;
-        const messages = await Chat.findAll({ where: { userId: req.user.id, id: { [Op.gt]: lastMessageId } } });
+        const messages = await Chat.findAll({ where: { groupId: groupId, id: { [Op.gt]: lastMessageId } } });
         if(messages) {
             res.status(200).json({ success: true, messages: messages });
         }
