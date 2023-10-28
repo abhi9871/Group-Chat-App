@@ -50,3 +50,21 @@ body {
     background-color: #c2d2da; /* Set the color of the scrollbar thumb */
     border-radius: 8px; /* Set the border radius to round */
 }
+
+#groups-listing {
+    overflow-y: scroll; /* Enable vertical scrollbar */
+    height: 400px;
+}
+
+#groups-listing::-webkit-scrollbar {
+    width: 6px; /* Set the width of the scrollbar */
+}
+
+#groups-listing::-webkit-scrollbar-thumb {
+    background-color: #c2d2da; /* Set the color of the scrollbar thumb */
+    border-radius: 8px; /* Set the border radius to round */
+}
+
+#members, #add-member {
+    display: none;
+}

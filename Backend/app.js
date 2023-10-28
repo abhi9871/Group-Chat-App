@@ -28,7 +28,6 @@ ChatMessages.belongsTo(Group);
 const userRoutes = require('./routes/user');
 const chatRoutes = require('./routes/chat');
 const groupRoutes = require('./routes/group');
-const Chat = require('./models/chat');
 
 //Set cors options to allow specific origin for security
 const corsOptions = {

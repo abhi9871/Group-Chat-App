@@ -90,17 +90,16 @@ const getUsers = async (req, res) => {
                 [Op.not]: currentUserId
             }
        },
-        attributes: ['id', 'email'] 
+        attributes: ['id', 'name', 'email'] 
     });
        if(users) {
-            res.status(200).json({ success: true, users });
+            res.status(200).json({ success: true, users: users });
        }
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: "Something went wrong" });
     }
 }
-
 
 module.exports = {
     generateToken,
