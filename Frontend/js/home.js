@@ -1,6 +1,7 @@
 const messageSendBtn = document.getElementById('sendMessage');
 const messageContainer = document.querySelector('.card-body');
 const token = localStorage.getItem('token');
+const socket = io('http://localhost:5000', { auth: { token: token } });
 
 // Initialize Toastr options
 toastr.options = {
@@ -61,21 +62,28 @@ async function sendMessages() {
         const messageBox = document.getElementById('message');
         const messageContent = messageBox.value;
         const groupId = Number.parseInt(JSON.parse(localStorage.getItem('groupId')));
-        const response = await axios.post(`http://localhost:4000/chat/create-message?groupId=${groupId}`, { message: messageContent }, { headers: { "Authorization": token }});
-        if(response.data.success) {
+
+        // Check for blank id
+        if(!groupId) {
+            toastr.error('No group exists');
             messageBox.value = '';
+            return;
         }
+
+        // Emit the message to the server
+        socket.emit('message', { message: messageContent, groupId: groupId });
+
+        messageBox.value = '';
+
     } catch (err) {
         console.log(err);
-        if (err.response && err.response.data && err.response.data.success === false) {
-            const errorMessage = err.response.data.message;
-            toastr.error(errorMessage);
-        } else {
-            // Handle other errors (e.g., network errors) or provide a generic error message.
-            toastr.error("An error occurred");
-        }
     }
 };
+
+// Show messages in real time without polling
+socket.on('newMessage', (msg) => {
+    showMessageOnScreen(msg);
+});
 
 // Fetching all the messages based on group id
 async function getMessages() {
@@ -90,8 +98,8 @@ async function getMessages() {
 
         const response = await axios.get(`http://localhost:4000/chat/get-messages?groupId=${groupId}&lastMessageId=${lastMessageId}`, { headers: { "Authorization": token } });
         if(response.data.success){
-            const messages = response.data.messages;
-            messages.forEach((message) => {
+                const messages = response.data.messages;
+                messages.forEach((message) => {
                 localChats.push(message);
             });
             localStorage.setItem(`chats_${localStorageGroupId}`, JSON.stringify(localChats));
@@ -121,7 +129,4 @@ function getLocalStorageChats() {
     }
 }
 
-// Refreshing the page to get new messages after every 1 second
-setInterval(() =>{
-    getMessages();
-}, 1000)
+getMessages();
