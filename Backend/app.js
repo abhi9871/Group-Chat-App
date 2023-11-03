@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 const sequelize = require('./utils/database');
 const User = require('./models/user');
 const ChatMessages = require('./models/chat');
@@ -34,6 +35,9 @@ const corsOptions = {
     origin: 'http://127.0.0.1:5500',
     credentials: true,      // Credentials like cookies, authorization headers, etc
   };
+
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Express will look for the file in the 'uploads' directory and serve it back to the client
 
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));

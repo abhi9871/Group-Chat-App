@@ -1,5 +1,6 @@
 const messageSendBtn = document.getElementById('sendMessage');
 const messageContainer = document.querySelector('.card-body');
+const sendMediaMessage = document.getElementById('fileInput');
 const token = localStorage.getItem('token');
 const socket = io('http://localhost:5000', { auth: { token: token } });
 
@@ -35,17 +36,89 @@ function parseJwt (token) {
 
 // Show messages on screen
 function showMessageOnScreen(messages) {
+    // Condition for checking blank messages
+    if(!messages.message){
+        return;
+    }
     const decodedToken = parseJwt(token);
     const userId = Number.parseInt(decodedToken.id);
     const messageElement = document.createElement('div');
     messageElement.style.display = 'flex';
-    messageElement.className = (messages.userId === userId) ? 'flex-row-reverse' : '';
+    messageElement.className = (messages.userId === userId) ? 'flex-row-reverse' : 'flex-row';
     messageElement.style.alignItems = 'center';
-    messageElement.innerHTML = `
-            <div class="message message-content border p-3 mb-2 rounded-4 bg-light">${messages.message}</div>
-        `;    
+    
+    // Show the images into the chat box
+    if(messages.message.includes('image')){
+            const imgElement = document.createElement('img');
+            imgElement.src = messages.message;
+            imgElement.classList.add('img-fluid', 'w-50', 'my-3'); // Add Bootstrap class for responsiveness
+            imgElement.style.cursor = 'pointer';
+            imgElement.addEventListener('click', () => {
+                showMediaMsgOnFullScreen(messages.message, 'img');
+        });
+                messageElement.appendChild(imgElement);
+
+        // Show the videos into the chat box
+    } else if(messages.message.includes('video')){
+                const videoElement = document.createElement('video');
+                videoElement.src = messages.message;
+                videoElement.classList.add('embed-responsive', 'w-50', 'my-3'); // Add Bootstrap class for responsiveness
+                videoElement.style.cursor = 'pointer';
+                videoElement.controls = true;
+                videoElement.addEventListener('click', (event) => {
+                    // Events conditions only work when someone clicks on the play button not everywhere 
+                    if (event.target.paused) {
+                            event.target.play();
+                    } else {
+                            event.target.pause();
+                    }
+                    showMediaMsgOnFullScreen(messages.message, 'video');
+                });
+                messageElement.appendChild(videoElement);
+        
+        // Show other media types such as pdf, docs, and many more
+    } else if(messages.message.includes('application')) {
+                const link = document.createElement('a');
+                link.classList.add('message', 'message-content', 'border', 'p-3', 'mb-2', 'rounded-4', 'bg-light', 'text-decoration-none');
+                link.style.width = 'auto';
+                link.style.maxWidth = '50%';
+                link.href = messages.message;
+                link.textContent = messages.message;
+                link.download = 'Document';
+                link.target = '_blank';
+                messageElement.appendChild(link);
+
+        // Show text messages into the chat box
+    } else {
+            const textElement = document.createElement('div');
+            textElement.classList.add('message', 'message-content', 'border', 'p-3', 'mb-2', 'rounded-4', 'bg-light');
+            textElement.style.width = 'auto';
+            textElement.style.maxWidth = '50%';
+            textElement.textContent = messages.message;
+            messageElement.appendChild(textElement);
+    }  
         messageContainer.appendChild(messageElement);
         scrollToBottom();
+}
+
+// Show media on full screen
+function showMediaMsgOnFullScreen(mediaMsg, type) {
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+    
+    const overlayImg = document.createElement(type);
+    overlayImg.src = mediaMsg;
+    if(type === 'video'){
+        overlayImg.controls = 'controls';
+    }
+    overlayImg.classList.add('overlay-img');
+    
+    overlay.appendChild(overlayImg);
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', () => {
+    overlay.remove();
+});
 }
 
 // Add this function to scroll to the bottom
@@ -80,10 +153,23 @@ async function sendMessages() {
     }
 };
 
-// Show messages in real time without polling
-socket.on('newMessage', (msg) => {
-    showMessageOnScreen(msg);
-});
+// Add event listener to the sendMedia field
+sendMediaMessage.addEventListener('change', sendMedia);
+
+// Send media messages into the group chat function
+async function sendMedia(e) {
+    try {
+        e.preventDefault();
+        const groupId = Number.parseInt(JSON.parse(localStorage.getItem('groupId')));
+        const file = e.target.files[0]; // Get the selected file
+        const formData = new FormData();
+        formData.append('file', file);
+        await axios.post(`http://localhost:4000/chat/upload?groupId=${groupId}`, formData, { headers: { "Authorization": token }});
+        sendMessages('', groupId);
+    } catch (error) {
+        console.error('Error while sending media:', error);
+      }
+}
 
 // Fetching all the messages based on group id
 async function getMessages() {
@@ -129,4 +215,8 @@ function getLocalStorageChats() {
     }
 }
 
-getMessages();
+// Show messages in real time without polling
+socket.on('newMessage', (msg) => {
+    getMessages();
+});
+

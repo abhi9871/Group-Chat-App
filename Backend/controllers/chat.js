@@ -2,6 +2,30 @@ const Chat = require('../models/chat');
 const { Op } = require('sequelize');
 const authSocket = require('../middleware/authSocket');
 
+const sendMediaMessage = async (req, res) => {
+    try{
+        const groupId = req.query.groupId;
+        const userId = req.user.id; // Assuming you have user authentication set up
+        const { mimetype, originalname } = req.file; // Get the file name
+        const mediaType = mimetype.split('/')[0];
+
+        // Save message to database with the file path
+        const msg = await Chat.create({
+                    message: `http://localhost:4000/uploads/${mediaType}_${originalname}`, // Store the file path
+                    userId: userId,
+                    groupId: groupId
+                });
+        if (msg) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: 'Error saving media to the database' });
+        }
+} catch(err){
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error saving message to the database' });
+  };
+}
+
 //Function to display all the messages
 const getChatMessages = async (req, res) => {
     try {
@@ -39,6 +63,13 @@ io.on('connection', async (socket) => {
     socket.on('message', async (data) => {
         try {
             const { message, groupId } = data;
+        
+            if(!message){
+                const msg = '';
+                io.emit('newMessage', msg);
+                return;
+            }
+
             // Check for blank group id
             if(!groupId){
                 return;
@@ -63,5 +94,6 @@ io.on('connection', async (socket) => {
 });
 
 module.exports = {
-    getChatMessages
+    getChatMessages,
+    sendMediaMessage
 }

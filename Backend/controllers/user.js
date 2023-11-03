@@ -36,7 +36,10 @@ const createUser = async (req, res) => {
             phone: phone,
             password: hashPassword,
         });
-        res.status(200).json({ success: true, message: "Sign up successful." });
+        if(!user){
+            return res.status(400).json({ success: false, message: "Something went wrong." });
+        }
+            res.status(200).json({ success: true, message: "Sign up successful." });
         
     } catch (err) {
         if (err.name === "SequelizeValidationError" || err.name === "SequelizeUniqueConstraintError") {
