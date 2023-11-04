@@ -7,6 +7,7 @@ const User = require('./models/user');
 const ChatMessages = require('./models/chat');
 const Group = require('./models/group');
 const UserGroup = require('./models/usergroup');
+const job = require('./cron/cron');
 const dotenv = require('dotenv');
 dotenv.config();
 const port = process.env.PORT;
