@@ -46,6 +46,9 @@ app.use('/user', userRoutes);
 app.use('/chat', chatRoutes);
 app.use('/group', groupRoutes);
 
+// Initiates the cron job which transfers the chat and delete the old chats too at every midnight.
+job.start();
+
 sequelize.sync()
 .then(() => {
     console.log(`Server is starting at ${port}`);
